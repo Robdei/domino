@@ -3,6 +3,11 @@ from typing import Dict, Union
 from .encoder import Encoder
 
 
+def to_tokenize(x):
+    from clip import tokenize
+    return tokenize(x, truncate=True).squeeze(0)
+
+
 def clip(
     variant: str = "ViT-B/32", device: Union[int, str] = "cpu"
 ) -> Dict[str, Encoder]:
@@ -28,7 +33,7 @@ def clip(
         Supervision. arXiv [cs.CV] (2021)
     """
     try:
-        from clip import load, tokenize
+        from clip import load
     except ImportError:
         raise ImportError(
             "To embed with CLIP run pip install git+https://github.com/openai/CLIP.git"
@@ -42,6 +47,6 @@ def clip(
         "text": Encoder(
             # need to squeeze out the batch dimension for compatibility with collate
             encode=model.encode_text,
-            preprocess=lambda x: tokenize(x, truncate=True).squeeze(0),
+            preprocess=to_tokenize,
         ),
     }

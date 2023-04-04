@@ -31,10 +31,11 @@ def generate_candidate_descriptions(
         input_phrases = [
             template.format(word) for word in words for template in templates
         ]
-        inputs = tokenizer(input_phrases, return_tensors="pt", padding=True).to(device)
+        inputs = tokenizer(input_phrases, return_tensors="pt", padding=True).to('cpu')
         input_ids = inputs["input_ids"]
-
-        outputs = model(**inputs)  # shape=(num_sents, num_tokens_in_sent, size_vocab)
+        token_type_ids = inputs["token_type_ids"]
+        attention_mask = inputs['attention_mask']
+        outputs = model(input_ids, token_type_ids=token_type_ids, attention_mask=attention_mask)  # shape=(num_sents, num_tokens_in_sent, size_vocab)
         probs = torch.softmax(outputs.logits, dim=-1).detach()
         top_k_out = probs.topk(k=k, dim=-1)
 
@@ -95,6 +96,7 @@ def generate_candidate_descriptions(
 def _get_wiki_words(top_k: int = 1e5, eng_only: bool = False):
     df = pd.read_csv(
         "https://raw.githubusercontent.com/IlyaSemenov/wikipedia-word-frequency/master/results/enwiki-2022-08-29.txt",
+        #"https://github.com/IlyaSemenov/wikipedia-word-frequency/raw/master/results/enwiki-20190320-words-frequency.txt",
         delimiter=" ",
         names=["word", "frequency"],
     )

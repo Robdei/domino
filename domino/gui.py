@@ -207,43 +207,40 @@ def explore(
         style={"description_width": "initial"},
     )
 
-    # TODO(Sabri): Add a widget for the # of examples in the slice at the current
-    # threshold. It will have to be linked with the threshold widget above.
+    # column_selector = widgets.SelectMultiple(
+    #     options=dp.columns, value=dp.columns, description="Columns", disabled=False
+    # )
 
-    column_selector = widgets.SelectMultiple(
-        options=dp.columns, value=dp.columns, description="Columns", disabled=False
-    )
+    # page_size_widget = widgets.RadioButtons(
+    #     options=[10, 25, 50], description="Page size"
+    # )
+    # page_idx_widget = widgets.BoundedIntText(
+    #     value=0,
+    #     min=0,
+    #     max=10,
+    #     step=1,
+    #     description="Page",
+    #     disabled=False,
+    #     readout=True,
+    #     readout_format="d",
+    #     layout=widgets.Layout(width="150px"),
+    # )
 
-    page_size_widget = widgets.RadioButtons(
-        options=[10, 25, 50], description="Page size"
-    )
-    page_idx_widget = widgets.BoundedIntText(
-        value=0,
-        min=0,
-        max=10,
-        step=1,
-        description="Page",
-        disabled=False,
-        readout=True,
-        readout_format="d",
-        layout=widgets.Layout(width="150px"),
-    )
-
-    # Establish interactions between widgets and the visualization functions
+    #Establish interactions between widgets and the visualization functions
     widgets.interactive(
         show_descriptions,
         slice_idx=slice_idx_widget,
         slice_threshold=slice_threshold_widget,
     )
 
-    widgets.interactive(
-        show_dp,
-        slice_idx=slice_idx_widget,
-        columns=column_selector,
-        page_idx=page_idx_widget,
-        page_size=page_size_widget,
-        slice_threshold=slice_threshold_widget,
-    )
+    # widgets.interactive(
+    #     show_dp,
+    #     slice_idx=slice_idx_widget,
+    #     columns=column_selector,
+    #     page_idx=page_idx_widget,
+    #     page_size=page_size_widget,
+    #     slice_threshold=slice_threshold_widget,
+    # )
 
     widgets.interactive(
         plot_slice,
@@ -272,39 +269,6 @@ def explore(
                     )
                 ),
                 description_output,
-            ]
-        )
-    )
-
-    display(
-        widgets.HBox(
-            [
-                widgets.VBox(
-                    [
-                        widgets.HTML(
-                            value=(
-                                "<style>p{word-wrap: break-word}</style> <p>"
-                                + "Select multiple columns with <em>cmd-click</em>."
-                                + " </p>"
-                            )
-                        ),
-                        column_selector,
-                    ]
-                ),
-                widgets.VBox([page_idx_widget, page_size_widget]),
-            ],
-        )
-    )
-    display(
-        widgets.VBox(
-            [
-                widgets.HTML(
-                    value=(
-                        "<p> <strong>  Examples in the slice, ranked by likelihood: "
-                        "</strong> </p>"
-                    )
-                ),
-                dp_output,
             ]
         )
     )
