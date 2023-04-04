@@ -99,6 +99,27 @@ def explore(
         )
     else:
         dp = data if isinstance(data, mk.DataPanel) else mk.DataPanel(data)
+    # print(slices)
+    # print(type(slices))
+    # print(slices.shape)
+    # print((-slices[:, 0]).argsort()[
+    #                     10
+    #                     * 1 : min(
+    #                         10 * (1 + 1), 50
+    #                     )
+    #                 ])
+    # print((-slices[:, 1]).argsort()[
+    #                 10
+    #                 * 1 : min(
+    #                     10 * (1 + 1), 50
+    #                 )
+    #             ])
+    # display(dp[(-slices[:, 1]).argsort()[
+    #                 10
+    #                 * 1 : min(
+    #                     10 * (1 + 1), 50
+    #                 )
+    #             ]])
 
     plot_output = widgets.Output()
 
@@ -160,7 +181,7 @@ def explore(
             )
             with description_output:
                 display(description_dp[(-description_dp["score"]).argsort()[:5]])
-
+    #import pdb; pdb.set_trace()
     dp_output = widgets.Output()
 
     def show_dp(
@@ -276,3 +297,41 @@ def explore(
     # To actually run the functions `plot_slice` and `show_dp` we need update the value
     # of one of the widgets.
     slice_idx_widget.value = 0
+
+    def display_slice(df, slice_index, slice_threshold, page_idx):
+        slices = unpack_args(df, 'domino_slices')[0]
+        #slices = np.array(df['domino_slices'])
+        num_examples_in_slice = np.sum(slices[:, slice_index] > slice_threshold)
+        display(widgets.HTML(f"<h3>Number of examples in slice: {num_examples_in_slice}</h3>"))
+        display(df[(-slices[:, slice_index]).argsort()[
+                        10
+                        * page_idx : min(
+                            10 * (page_idx + 1), num_examples_in_slice
+                        )
+                    ]]['image', 'probs_float', 'target', 'file_path'])
+
+    slice_indices = range(dp['domino_slices'].shape[1])
+    dropdown = widgets.Dropdown(options=slice_indices, description='Slice Index: ')
+
+    slider = widgets.FloatSlider(value=0.5, min=0, max=1, step=0.01, description='Slice Threshold: ')
+
+    page_idx_widget = widgets.BoundedIntText(
+        value=0,
+        min=0,
+        max=15,
+        step=1,
+        description="Page",
+        disabled=False,
+        readout=True,
+        readout_format="d",
+        layout=widgets.Layout(width="150px"),
+    )
+
+    def update_slice(slice_index, slice_threshold, page_idx):
+        display_slice(dp, slice_index, slice_threshold, page_idx)
+
+    widgets.interact(update_slice, slice_index=dropdown, slice_threshold=slider, page_idx=page_idx_widget)
+
+
+
+
